@@ -127,3 +127,5 @@ dmypy.json
 # video and image files
 *.mp4
 *.jpg
+*.mp3
+*.wav
