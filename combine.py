@@ -11,14 +11,13 @@
 
 from moviepy.editor import VideoFileClip, concatenate_videoclips
 import argparse
-import sys
 import os
 import re
 
 # define command line arguments using argparse
 parser = argparse.ArgumentParser(description='Combine some video clips via the command line.')
-parser.add_argument('root_directory_name', help='The root folder location of the video clips.')
-parser.add_argument('output_file_location', help='The desired output file location.')
+parser.add_argument('root_directory_name', help='The root folder location of the video clips (non-relative).')
+parser.add_argument('output_file_location', help='The desired output file location. (Relative).')
 parser.add_argument('unique_clip_id', help='The unique id to search for in each video clip name.')
 parser.add_argument('video_file_extension', help='The video file format (no period)')
 
@@ -43,7 +42,7 @@ for root, subdirs, files in os.walk(args.root_directory_name):
 
 # render all clips in list together (in order they were discovered)
 final_render = concatenate_videoclips(clips_to_join_list)
-final_render.write_videofile('render.mp4', codec='libx264')
+final_render.write_videofile('render.mp4', codec='libx264', fps=25)
 
 # dump all clips from memory
 for video_file in clips_to_join_list:
