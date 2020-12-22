@@ -10,39 +10,36 @@
 # 
 
 from moviepy.editor import VideoFileClip, concatenate_videoclips
+import argparse
+import sys
 import os
 import re
 
-# catch improper use of arguments and exit
-if len(sys.argv) == 0 or len(sys.argv) > 3:
-    print(
-        '''
-        combine.py USAGE:
-        Please enter the command `py combine.py {root folder location of video clips},
-        {output file location},
-        {unique id inside video clip name},
-        {video file format (no period)}`
-        to generate your unique concatenated video clip. Only supports mp4s.
-        '''
-    )
-    exit()
+# define command line arguments using argparse
+parser = argparse.ArgumentParser(description='Combine some video clips via the command line.')
+parser.add_argument('root_directory_name', help='The root folder location of the video clips.')
+parser.add_argument('output_file_location', help='The desired output file location.')
+parser.add_argument('unique_clip_id', help='The unique id to search for in each video clip name.')
+parser.add_argument('video_file_extension', help='The video file format (no period)')
 
-# assign params to variables
-root_directory_name = sys.argv[0] or "."
-output_file_location = sys.argv[1] or ""
-unique_clip_id = sys.argv[2] or ""
-video_file_extension = sys.argv[3] or "mp4"
+# assign params to namespace
+args = parser.parse_args()
 clips_to_join_list = []
 
+print("root directory selected: " + args.root_directory_name)
+# for root, subdirs, files in os.walk(args.root_directory_name):
+#     for filename in files:
+#         print ("file added:" + filename)
 # walk through all subdirectories of root folder to find all files
-for root, subdirs, files in os.walk(root_directory_name):
+for root, subdirs, files in os.walk(args.root_directory_name):
     for filename in files:
         # check file for unique id and correct file type
-        if re.match(rf"^.*{unique_clip_id}.*\.{video_file_extension}", filename, re.IGNORECASE):
+        if re.match(rf"^.*{args.unique_clip_id}.*\.{args.video_file_extension}", filename, re.IGNORECASE):
             # get full file path
             name_path = os.path.join(root, filename)
+            print("file added to concatenate: " + name_path)
             # load file as video clip into array
-            clips_to_join_list.insert(VideoFileClip(len(clips_to_join_list), name_path))
+            clips_to_join_list.insert(len(clips_to_join_list), VideoFileClip(name_path))
 
 # render all clips in list together (in order they were discovered)
 final_render = concatenate_videoclips(clips_to_join_list)
@@ -53,4 +50,4 @@ for video_file in clips_to_join_list:
     video_file.close()
 
 # print success message
-print(f"All done! File exported to {output_file_location}.")
+print(f"All done! File exported to {args.output_file_location}.")
