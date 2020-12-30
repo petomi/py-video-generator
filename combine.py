@@ -50,7 +50,7 @@ final_render = concatenate_videoclips(clips_to_join_list)
 if args.audio != None:
     print('Audio track selected: ' + args.audio)
     background_audio_clip = AudioFileClip(args.audio)
-    final_render.set_audio(background_audio_clip)
+    final_render = final_render.set_audio(background_audio_clip)
 
 # render to file
 final_render.write_videofile('render.mp4', codec='libx264', fps=25)
