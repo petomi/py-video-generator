@@ -17,7 +17,7 @@ import re
 # define command line arguments using argparse
 parser = argparse.ArgumentParser(description='COMBINE.PY //// Combine some video clips via the command line.')
 parser.add_argument('root_directory_name', default='.', help='the root folder location of the video clips (non-relative).')
-parser.add_argument('output_file_location', default='.', help='the desired output file location (relative).')
+parser.add_argument('output_file_location', default='.', help='the desired output file directory (relative).')
 parser.add_argument('unique_clip_id', default='', help='the unique id to search for in each video clip name.')
 parser.add_argument('video_file_extension', default='mp4', help='the video file format (no period).')
 # optional arguments
