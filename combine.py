@@ -45,7 +45,6 @@ for root, subdirs, files in os.walk(args.root_directory_name):
 # combine selected video clips in order they were discovered
 final_render = concatenate_videoclips(clips_to_join_list)
 
-# TODO - not working yet
 #overwrite audio if selected
 if args.audio != None:
     print('Audio track selected: ' + args.audio)
