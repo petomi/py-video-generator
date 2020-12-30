@@ -7,8 +7,7 @@
 
 from moviepy.editor import AudioFileClip, VideoFileClip, concatenate_videoclips
 import argparse
-import os
-import re
+import os, re
 import yaml
 
 # define optional command line arguments using argparse
@@ -30,7 +29,7 @@ cfg = yaml.load(file, Loader= yaml.FullLoader)
 root_directory_location = args.root_directory_location or cfg['combine']['root_directory_location']
 output_file_location = args.output_file_location or cfg['combine']['output_file_location']
 unique_clip_id = args.unique_clip_id or cfg['combine']['unique_clip_id']
-video_file_extension = args.video_file_extension or cfg['combine']['video_file_extension']
+video_file_extension = args.video_file_extension or cfg['shared']['video_file_extension']
 audio = args.audio or cfg['combine']['audio']
 
 clips_to_join_list = []
@@ -42,8 +41,8 @@ for root, subdirs, files in os.walk(root_directory_location):
         # check file for unique id and correct file type
         if re.match(rf"^.*{unique_clip_id}.*\.{video_file_extension}", filename, re.IGNORECASE):
             # get full file path
-            name_path = os.path.join(root, filename)
-            print("File added to concatenate: " + name_path)
+            file_path = os.path.join(root, filename)
+            print("File added to concatenate: " + file_path)
             # load file as video clip into array
             clips_to_join_list.insert(len(clips_to_join_list), VideoFileClip(name_path))
 
