@@ -5,7 +5,7 @@
 # Then run `pip install -r requirements.txt`
 # Uses either command line arguments or variables defined in config.yml file for configuration.
 
-import os, re
+import re
 import yaml
 import argparse
 import requests
@@ -15,6 +15,7 @@ parser = argparse.ArgumentParser(description='COLLECT.PY //// Get media file URL
 parser.add_argument('--save_location', nargs='?', help='the full path to the directory where media should be saved.')
 parser.add_argument('--api_url', nargs='?', help='the API endpoint used to get the media URLS.')
 parser.add_argument('--video_file_extension', nargs='?', help='the type of files we want to get from the API results.')
+parser.add_argument('--unique_clip_id', nargs='?', help='the unique id to search for in each video clip name.')
 args = parser.parse_args()
 
 # get YAML config.yml file settings, accessed using cfg[key][subkey]
@@ -25,6 +26,7 @@ cfg = yaml.load(file, Loader= yaml.FullLoader)
 save_location = args.save_location or cfg['collect']['save_location']
 api_url = args.api_url or cfg['collect']['api_url']
 video_file_extension = args.video_file_extension or cfg['shared']['video_file_extension']
+unique_clip_id = args.unique_clip_id or cfg['collect']['unique_clip_id']
 
 try:
     # call API URL
@@ -48,7 +50,8 @@ try:
             # use streaming method, more optimized for threading than one at a time
             # see https://stackoverflow.com/questions/14270053/python-requests-not-clearing-memory-when-downloading-with-sessions
             request = requests.get(url, stream=True)
-            with open(save_location + filename, 'wb') as code:
+            # add unique id to the saved file to ensure that each downloaded file will contain the correct id
+            with open(save_location + unique_clip_id + '-' + filename, 'wb') as code:
                 for chunk in request.iter_content(1024):
                     if not chunk:
                         break
@@ -65,5 +68,6 @@ try:
 except Exception as ex:
     print('Error downloading media:')
     print(ex)
+    raise Exception(f'Error downloading media: {ex}')
 
 

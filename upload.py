@@ -16,6 +16,7 @@ parser.add_argument('--source_directory', nargs='?', help='the full path to the 
 parser.add_argument('--azure_connection_string', nargs='?', help='your Azure storage connection string.')
 parser.add_argument('--video_file_extension', nargs='?', help='the file extension of the files to be uploaded.')
 parser.add_argument('--azure_container_name', nargs='?', help='the Azure container name.')
+parser.add_argument('--unique_clip_id', nargs='?', help='the unique id to search for in each video clip name.')
 args = parser.parse_args()
 
 # get YAML config.yml file settings, accessed using cfg[key][subkey]
@@ -27,6 +28,7 @@ azure_connection_string = args.azure_connection_string or cfg['upload']['azure']
 azure_container_name = args.azure_container_name or cfg['upload']['azure']['container_name']
 source_directory = args.source_directory or cfg['upload']['source_directory']
 video_file_extension = args.video_file_extension or cfg['shared']['video_file_extension']
+unique_clip_id = args.unique_clip_id or cfg['upload']['unique_clip_id']
 
 try:
     # connect to Azure container
@@ -35,9 +37,9 @@ try:
     # scan root directory for files with correct extension
     for root, subdirs, files in os.walk(source_directory):
         for filename in files:
-            print(f'Uploading file {filename} to Azure storage.')
             # check file for correct file type
-            if re.match(rf"^.*\.{video_file_extension}", filename, re.IGNORECASE):
+            if re.match(rf"^.*{unique_clip_id}.*\.{video_file_extension}", filename, re.IGNORECASE):
+                print(f'Uploading file {filename} to Azure storage.')
                 # get full file path
                 full_path = os.path.join(root, filename)
                 # upload video file to container specified in configuration file
@@ -51,3 +53,4 @@ try:
 except Exception as ex:
     print('Error uploading video file:')
     print(ex)
+    raise Exception(f'Error uploading media: {ex}')

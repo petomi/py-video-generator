@@ -38,32 +38,41 @@ if unique_clip_id:
     output_file_name = f'{unique_clip_id}.mp4'
 print("root directory selected: " + root_directory_location)
 
-for root, subdirs, files in os.walk(root_directory_location):
-    for filename in files:
-        # check file for unique id and correct file type
-        if re.match(rf"^.*{unique_clip_id}.*\.{video_file_extension}", filename, re.IGNORECASE):
-            # get full file path
-            file_path = os.path.join(root, filename)
-            print("File added to concatenate: " + file_path)
-            # load file as video clip into array
-            clips_to_join_list.insert(len(clips_to_join_list), VideoFileClip(file_path))
+try:
+    for root, subdirs, files in os.walk(root_directory_location):
+        for filename in files:
+            # check file for unique id and correct file type
+            if re.match(rf"^.*{unique_clip_id}.*\.{video_file_extension}", filename, re.IGNORECASE):
+                # get full file path
+                file_path = os.path.join(root, filename)
+                print("File added to concatenate: " + file_path)
+                # load file as video clip into array
+                clips_to_join_list.insert(len(clips_to_join_list), VideoFileClip(file_path))
 
+    if len(clips_to_join_list) == 0:
+        raise Exception(f'There were no clips to join with the requested id: {unique_clip_id}')
 
-# combine selected video clips in order they were discovered
-final_render = concatenate_videoclips(clips_to_join_list)
+    # combine selected video clips in order they were discovered
+    final_render = concatenate_videoclips(clips_to_join_list)
 
-# overwrite audio if selected
-if audio:
-    print('Audio track selected: ' + audio)
-    background_audio_clip = AudioFileClip(audio)
-    final_render = final_render.set_audio(background_audio_clip)
+    # overwrite audio if selected
+    if audio:
+        print('Audio track selected: ' + audio)
+        background_audio_clip = AudioFileClip(audio)
+        final_render = final_render.set_audio(background_audio_clip)
 
-# render to file
-final_render.write_videofile(f'{output_file_location}/{output_file_name}', codec='libx264', fps=25)
+    # render to file
+    final_render.write_videofile(f'{output_file_location}/{output_file_name}', codec='libx264', fps=25)
 
-# dump all clips from memory
-for video_file in clips_to_join_list:
-    video_file.close()
+    # dump all clips from memory
+    for video_file in clips_to_join_list:
+        video_file.close()
 
-# print success message
-print(f"All done! File exported to {output_file_location}.")
+    # print success message
+    print(f"All done! File exported to {output_file_location}.")
+
+except Exception as ex:
+    print('Error rendering media:')
+    print(ex)
+    raise Exception(f'Error rendering media: {ex}')
+
