@@ -44,8 +44,6 @@ try:
                 with open(full_path, 'rb') as data:
                     blob_client.upload_blob(data)
 
-
-
 except Exception as ex:
     print('Error uploading video file:')
     print(ex)
