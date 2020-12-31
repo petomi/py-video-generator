@@ -35,6 +35,7 @@ try:
     # scan root directory for files with correct extension
     for root, subdirs, files in os.walk(source_directory):
         for filename in files:
+            print(f'Uploading file {filename} to Azure storage.')
             # check file for correct file type
             if re.match(rf"^.*\.{video_file_extension}", filename, re.IGNORECASE):
                 # get full file path
@@ -43,6 +44,9 @@ try:
                 blob_client = blob_service_client.get_blob_client(container=azure_container_name, blob=filename)
                 with open(full_path, 'rb') as data:
                     blob_client.upload_blob(data)
+
+            print(f'Uploaded file {filename} successfully.')
+    print('Uploaded all files successfully.')
 
 except Exception as ex:
     print('Error uploading video file:')
