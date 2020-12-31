@@ -44,7 +44,7 @@ for root, subdirs, files in os.walk(root_directory_location):
             file_path = os.path.join(root, filename)
             print("File added to concatenate: " + file_path)
             # load file as video clip into array
-            clips_to_join_list.insert(len(clips_to_join_list), VideoFileClip(name_path))
+            clips_to_join_list.insert(len(clips_to_join_list), VideoFileClip(file_path))
 
 
 # combine selected video clips in order they were discovered
