@@ -14,7 +14,6 @@ import requests
 parser = argparse.ArgumentParser(description='COLLECT.PY //// Get media file URLs from an API endpoint and download them to disk.')
 parser.add_argument('--save_location', nargs='?', help='the full path to the directory where media should be saved.')
 parser.add_argument('--api_url', nargs='?', help='the API endpoint used to get the media URLS.')
-parser.add_argument('--media_url_pattern', nargs='?', help='the media URL to filter API results against.')
 parser.add_argument('--video_file_extension', nargs='?', help='the type of files we want to get from the API results.')
 args = parser.parse_args()
 
