@@ -33,7 +33,9 @@ video_file_extension = args.video_file_extension or cfg['shared']['video_file_ex
 audio = args.audio or cfg['combine']['audio']
 
 clips_to_join_list = []
-output_file_name = 'render.mp4' # TODO
+output_file_name = 'render.mp4'
+if unique_clip_id:
+    output_file_name = f'{unique_clip_id}.mp4'
 print("root directory selected: " + root_directory_location)
 
 for root, subdirs, files in os.walk(root_directory_location):
@@ -51,13 +53,13 @@ for root, subdirs, files in os.walk(root_directory_location):
 final_render = concatenate_videoclips(clips_to_join_list)
 
 # overwrite audio if selected
-if audio != None and audio != '':
+if audio:
     print('Audio track selected: ' + audio)
     background_audio_clip = AudioFileClip(audio)
     final_render = final_render.set_audio(background_audio_clip)
 
 # render to file
-final_render.write_videofile(f'{output_file_location}/render.mp4', codec='libx264', fps=25)
+final_render.write_videofile(f'{output_file_location}/{output_file_name}', codec='libx264', fps=25)
 
 # dump all clips from memory
 for video_file in clips_to_join_list:
