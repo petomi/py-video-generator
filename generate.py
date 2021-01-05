@@ -37,16 +37,19 @@ def generate_video_using_id(id, api_url_pattern):
         # call collect.py to get video clips
         collect = run(['py', 'collect.py', '--api_url', url, '--unique_clip_id', id], capture_output=True)
         if len(collect.stderr) > 0:
-            raise Exception(f'Error collecting media video with id: {str(id)}. {collect.stderr}')
+            print(f'Error collecting media video with id: {str(id)}. {collect.stderr}')
+            raise Exception(f'Error collecting media video with id: {str(id)}')
         # call combine.py to combine and render the clips
         combine = run(['py', 'combine.py', '--unique_clip_id', id], capture_output=True)
         if len(combine.stderr) > 0:
-            raise Exception(f'Error rendering video with id: {str(id)}. {combine.stderr}')
+            print(f'Error rendering video with id: {str(id)}. {combine.stderr}')
+            raise Exception(f'Error rendering video with id: {str(id)}')
         # call upload.py to upload the finished clips
         upload = run(['py', 'upload.py', '--unique_clip_id', id], capture_output=True)
         if len(upload.stderr) > 0:
+            print(f'Uploading failed for video with id: {str(id)}. {upload.stderr}')
             raise Exception(
-                f'Uploading failed for video with id {str(id)}. {upload.stderr}')
+                f'Uploading failed for video with id {str(id)}')
     except Exception as ex:
         print(ex)
         raise Exception(ex)
