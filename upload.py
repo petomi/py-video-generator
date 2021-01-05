@@ -33,6 +33,7 @@ unique_clip_id = args.unique_clip_id or cfg['upload']['unique_clip_id']
 try:
     # connect to Azure container
     blob_service_client = BlobServiceClient.from_connection_string(azure_connection_string)
+    num_uploaded_files = 0
 
     # scan root directory for files with correct extension
     for root, subdirs, files in os.walk(source_directory):
@@ -45,10 +46,14 @@ try:
                 # upload video file to container specified in configuration file
                 blob_client = blob_service_client.get_blob_client(container=azure_container_name, blob=filename)
                 with open(full_path, 'rb') as data:
-                    blob_client.upload_blob(data)
+                    blob_client.upload_blob(data, overwrite=True)
+                num_uploaded_files += 1
 
             print(f'Uploaded file {filename} successfully.')
-    print('Uploaded all files successfully.')
+    if num_uploaded_files == 0:
+        raise Exception(f'No files with id: {unique_clip_id} found to upload. Render must have failed.')
+    else:
+        print('Uploaded all files successfully.')
 
 except Exception as ex:
     print('Error uploading video file:')
