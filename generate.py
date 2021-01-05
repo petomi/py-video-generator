@@ -37,20 +37,19 @@ def generate_video_using_id(id, api_url_pattern):
         # call collect.py to get video clips
         collect = run(['py', 'collect.py', '--api_url', url, '--unique_clip_id', id], capture_output=True)
         if len(collect.stderr) > 0:
-            raise Exception(f'Subprocess failed. Stopping execution. {str(collect.stderr)}')
+            raise Exception(f'Error collecting media video with id: {str(id)}. {collect.stderr}')
         # call combine.py to combine and render the clips
         combine = run(['py', 'combine.py', '--unique_clip_id', id], capture_output=True)
         if len(combine.stderr) > 0:
-            raise Exception(
-                f'Subprocess failed. Stopping execution. {str(combine.stderr)}')
+            raise Exception(f'Error rendering video with id: {str(id)}. {combine.stderr}')
         # call upload.py to upload the finished clips
         upload = run(['py', 'upload.py', '--unique_clip_id', id], capture_output=True)
         if len(upload.stderr) > 0:
             raise Exception(
-                f'Subprocess failed. Stopping execution. {str(upload.stderr)}')
+                f'Uploading failed for video with id {str(id)}. {upload.stderr}')
     except Exception as ex:
-        print(f'Error generating video for id {id}:')
         print(ex)
+        raise Exception(ex)
 
 # LOG RESULTS
 def log_results(result):
@@ -66,7 +65,11 @@ def log_failed_results(result):
 def abort_all_processes(exctype, value, traceback):
     for p in mp.active_children():
         print('active child: ' + str(p))
-        p.terminate() # TODO - figure out why this doesn't work
+        try:
+            p.terminate() # TODO - figure out why this doesn't work
+        except Exception as ex:
+            print(str(ex))
+            #sys.exit()
 
 # MAIN PROGRAM
 
@@ -81,13 +84,14 @@ if __name__ == '__main__':
 
         # for each unique ID listed in the file specified in config, begin generating and uploading video as threaded process
         for id in id_list:
-            pool.apply_async(generate_video_using_id, args=(id, api_url_pattern), callback=log_results, error_callback=log_failed_results)
+            if len(id) > 0:
+                pool.apply_async(generate_video_using_id, args=(id, api_url_pattern), callback=log_results, error_callback=log_failed_results)
 
-        sys.excepthook = abort_all_processes # TODO - figure out how to end all processes properly
+        # sys.excepthook = abort_all_processes # TODO - figure out how to end all processes properly
         pool.close()
         pool.join()
 
-        print('All video clips have been generated.')
+        print('Script finished.')
 
     except Exception as ex:
         print('Error generating videos:')
