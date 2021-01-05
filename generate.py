@@ -14,7 +14,6 @@ import yaml
 parser = argparse.ArgumentParser(description='GENERATE.PY //// Generate videos based on cloud-hosted media accessible via API and upload the result to Azure.')
 parser.add_argument('--unique_ids_file', nargs='?', help='the file containing a list of unique ids to generate videos for, each on a new line')
 parser.add_argument('--api_url_pattern', nargs='?', help='the template for the media API we pull media from, which will have the unique ids interpolated into it. Use `{UNIQUE_ID}` as placeholder.')
-parser.add_argument('--log_file', nargs='?', help='the location of the log file.')
 parser.add_argument('--error_log_file', nargs='?', help='the location of the error log file.')
 args = parser.parse_args()
 
@@ -25,7 +24,6 @@ cfg = yaml.load(file, Loader= yaml.FullLoader)
 # set up variables (command line overrides config.yml)
 unique_ids_file = args.unique_ids_file or cfg['generate']['unique_ids_file']
 api_url_pattern = args.api_url_pattern or cfg['generate']['api_url_pattern']
-log_file = args.log_file or cfg['generate']['log_file']
 error_log_file = args.error_log_file or cfg['generate']['error_log_file']
 
 # FUNCTION FOR CALLING COLLECT, COMBINE, AND UPLOAD AS SUBPROCESSES
