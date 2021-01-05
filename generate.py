@@ -54,11 +54,6 @@ def generate_video_using_id(id, api_url_pattern):
         print(ex)
         raise Exception(ex)
 
-# LOG RESULTS
-def log_results(result):
-    with open(log_file, 'a+') as l:
-        l.write('\n' + str(result))
-
 # LOG FAILED RESULTS
 def log_failed_results(result):
     with open(error_log_file, 'a+') as l:
@@ -88,7 +83,7 @@ if __name__ == '__main__':
         # for each unique ID listed in the file specified in config, begin generating and uploading video as threaded process
         for id in id_list:
             if len(id) > 0:
-                pool.apply_async(generate_video_using_id, args=(id, api_url_pattern), callback=log_results, error_callback=log_failed_results)
+                pool.apply_async(generate_video_using_id, args=(id, api_url_pattern), error_callback=log_failed_results)
 
         # sys.excepthook = abort_all_processes # TODO - figure out how to end all processes properly
         pool.close()
