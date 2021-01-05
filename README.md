@@ -38,3 +38,10 @@ upload:
 
 ```
 Note that each script has its own configuration section, but that `api_url_pattern` and `unique_ids_file` will overwrite any script-specific configuration variables when `generate.py` is run.
+
+An example ids.txt file format can be seen below:
+```
+123-12231
+abc-90013
+```
+Note that each unique id is on a new line.
