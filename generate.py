@@ -8,7 +8,6 @@
 import multiprocessing as mp
 from subprocess import run
 import argparse
-import sys
 import yaml
 
 # define optional command line arguments using argparse
@@ -40,10 +39,9 @@ def generate_video_using_id(id, api_url_pattern):
             print(f'Error collecting media video with id: {str(id)}. {collect.stderr}')
             raise Exception(f'Error collecting media video with id: {str(id)}')
         # call combine.py to combine and render the clips
-        combine = run(['py', 'combine.py', '--unique_clip_id', id], capture_output=False)
-        if combine.stderr and len(combine.stderr) > 0:
-            print(f'Error rendering video with id: {str(id)}. {combine.stderr}')
-            raise Exception(f'Error rendering video with id: {str(id)}')
+        # no error checking here because the video rendering library apparently throws false positive errors on completion of successful render.
+        # we will check whether the correct file exists as part of the upload step and thus catch a render error.
+        combine = run(['py', 'combine.py', '--unique_clip_id', id], capture_output=True)
         # call upload.py to upload the finished clips
         upload = run(['py', 'upload.py', '--unique_clip_id', id], capture_output=True)
         if len(upload.stderr) > 0:
@@ -59,16 +57,6 @@ def log_failed_results(result):
     with open(error_log_file, 'a+') as l:
         l.write('\n' + str(result))
 
-# ABORT ALL PROCESSES
-def abort_all_processes(exctype, value, traceback):
-    for p in mp.active_children():
-        print('active child: ' + str(p))
-        try:
-            p.terminate() # TODO - figure out why this doesn't work
-        except Exception as ex:
-            print(str(ex))
-            #sys.exit()
-
 # MAIN PROGRAM
 
 if __name__ == '__main__':
@@ -77,15 +65,14 @@ if __name__ == '__main__':
     with open(unique_ids_file, 'r') as f:
         id_list = f.read().splitlines() # used instead of readlines to remove \n characters
 
-    try:
-        pool = mp.Pool()
+    pool = mp.Pool()
 
+    try:
         # for each unique ID listed in the file specified in config, begin generating and uploading video as threaded process
         for id in id_list:
             if len(id) > 0:
                 pool.apply_async(generate_video_using_id, args=(id, api_url_pattern), error_callback=log_failed_results)
 
-        # sys.excepthook = abort_all_processes # TODO - figure out how to end all processes properly
         pool.close()
         pool.join()
 
